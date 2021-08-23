@@ -46,22 +46,22 @@ function useFormSubmission({endpoint, data}) {
   React.useEffect(() => {
     if (fetchBody) {
       dispatch({type: 'START'})
-      window
-        .fetch(endpoint, {
+      const login = async () => {
+        const response = await fetch(endpoint, {
           method: 'POST',
           body: fetchBody,
           headers: {
             'content-type': 'application/json',
           },
         })
-        .then(async response => {
-          const data = await response.json()
-          if (response.ok) {
-            dispatch({type: 'RESOLVE', responseData: data})
-          } else {
-            dispatch({type: 'REJECT', error: data})
-          }
-        })
+        const data = await response.json()
+        if (response.ok) {
+          dispatch({type: 'RESOLVE', responseData: data})
+        } else {
+          dispatch({type: 'REJECT', error: data})
+        }
+      }
+      login()
     }
   }, [fetchBody, endpoint])
 

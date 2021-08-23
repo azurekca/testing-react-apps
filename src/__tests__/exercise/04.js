@@ -4,24 +4,35 @@
 import * as React from 'react'
 import {render, screen} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import {build, fake} from '@jackfranklin/test-data-bot'
 import Login from '../../components/login'
 
+const buildLoginForm = build('user', {
+  fields: {
+    //passing in a callback function to fake ensures new data is generated every time we use this, otherwise we would get the same value each time we called buildLoginForm
+    username: fake(faker => faker.internet.userName()),
+    password: fake(faker => faker.internet.password()),
+  },
+})
+
 test('submitting the form calls onSubmit with username and password', () => {
-  // 🐨 create a variable called "submittedData" and a handleSubmit function that
-  // accepts the data and assigns submittedData to the data that was submitted
-  // 💰 if you need a hand, here's what the handleSubmit function should do:
-  // const handleSubmit = data => (submittedData = data)
-  //
-  // 🐨 render the login with your handleSubmit function as the onSubmit prop
-  //
-  // 🐨 get the username and password fields via `getByLabelText`
-  // 🐨 use userEvent.type to change the username and password fields to
-  //    whatever you want
-  //
-  // 🐨 click on the button with the text "Submit"
-  //
-  // assert that submittedData is correct
-  // 💰 use `toEqual` from Jest: 📜 https://jestjs.io/docs/en/expect#toequalvalue
+  const mock = jest.fn()
+
+  render(<Login onSubmit={mock} />)
+
+  const {username, password} = buildLoginForm()
+  console.log(username, password)
+  const {username: u, password: p} = buildLoginForm()
+  console.log(u, p)
+
+  userEvent.type(screen.getByLabelText(/username/i), username)
+  userEvent.type(screen.getByLabelText(/password/i), password)
+
+  const button = screen.getByRole('button', {name: /submit/i})
+  userEvent.click(button)
+
+  expect(mock).toHaveBeenCalledWith({username, password})
+  expect(mock).toHaveBeenCalledTimes(1)
 })
 
 /*
